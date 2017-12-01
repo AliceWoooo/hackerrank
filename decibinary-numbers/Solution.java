@@ -6,77 +6,73 @@ import java.util.regex.*;
 
 public class Solution {
     
-    static long twoToPowerOf(long n) {
-        long result = 1;
-        for(long i=0; i<n; i++) {
-            result*=2;
-        }
-        return result;
-    }
-    
-    static long tenToPowerOf(long n) {
-        long result = 1;
-        for(long i=0; i<n; i++) {
-            result*=10;
-        }
-        return result;
-    }
-
-    static long[] findDigitNum(long x) {
-        long[] result = new long[2];
-        result[0] = 0;
-        result[1] = 0;
-        long num = 1;
-        while(true) {
-            if(x<=num) {
-                break;
-            }
-            result[1]=num;
-            num+=twoToPowerOf(2*result[0]);
-            result[0]++;
-        }
-        return result;
-    }
-    
+	static HashMap<Long, ArrayList<Long>> hm = new HashMap<>();
+	static ArrayList<Long> sizeArr = new ArrayList<>();
+	static long size=0;
+	static long dec = 0;
+	static long begin = 0;
+	
     static long findMax(long dec) {
     	long max = 0;
     	while(true) {
-    		if(dec<twoToPowerOf(max)) {
+    		if(dec<Math.pow(2,max)) {
     			break;
     		}
     		max++;
     	}
-    	return tenToPowerOf(max);
+    	return (long) Math.pow(10,max);
     }
     
     static long decibinary(long n) {
         int i =0;
         long sum = 0;
         while(n!=0) {
-            sum+=(n%10)*(twoToPowerOf(i));
+            sum+=(n%10)*(Math.pow(2,i));
             n = n/10;
             i++;
         }
         return sum;
     }
     
-    static long decibinaryNumbers(long x) {
-    	long dec = 0;
-    	long size = 0;
-    	long begin = -1;
-    	long max = findMax(dec);
-    	while(x>size) {
-    		begin++;
-    		if(decibinary(begin)==dec) {
-    			size++;
+    static void completeTable(long x) {
+    	while(true) {
+    		long max = findMax(dec);
+    		while(begin<=max) {
+    			long decNum = decibinary(begin);
+    			if(hm.containsKey(decNum)) {
+    				hm.get(decNum).add(begin);
+    			}
+    			else {
+    				ArrayList<Long> arr = new ArrayList<>();
+    				arr.add(begin);
+    				hm.put(decNum, arr);
+    			}
+    			begin++;
     		}
-    		if(begin==max) {
-    			begin=-1;
-    			dec++;
-    			max = findMax(dec);
+    		size+=hm.get(dec).size();
+    		sizeArr.add(size);
+    		dec++;
+    		if(x<=size) {
+    			break;
     		}
     	}
-    	return begin;
+    }
+    
+    static long decibinaryNumbers(long x) {
+    	
+    	if(x>size) {
+    		completeTable(x);
+    	}
+    	
+    	long d = 0;
+		while(x>sizeArr.get((int) d)) {
+			d++;
+		}
+		long s = 0;
+    	if(d>0) {
+    		s = sizeArr.get((int) (d-1));
+    	}
+    	return hm.get(d).get((int)(x-s-1));
     }
 
     public static void main(String[] args) {
